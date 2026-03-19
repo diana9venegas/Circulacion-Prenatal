@@ -1,0 +1,341 @@
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Minijuego: Circulación Fetal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #8c3d49;
+      --card: #b85b6a;
+      --muted: #fd93a2;
+      --text: #ffe6ea;
+      --accent: #fd93a2;
+      --accent-2: #ffe6ea;
+      --danger: #ff5c77;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .btn-volver {
+      display: block;
+      margin-top: 4px;
+      background: var(--accent-2);
+      color: var(--bg);
+      font-weight: 700;
+      padding: 6px 10px;      /* Tamaño más pequeño */
+      border-radius: 10px;
+      text-align: center;
+      font-size: 14px;        /* Letra más chiquita */
+      cursor: pointer;
+      text-decoration: none;
+      border: 2px solid var(--accent);
+    }
+
+    .btn-volver:hover {
+      filter: brightness(1.1);
+    }
+
+    .app {
+      width: min(1100px, 100%);
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 18px;
+    }
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card);
+      border: 2px solid var(--muted);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+    }
+
+    .title {
+      font-weight: 800;
+      font-size: clamp(18px, 2.2vw, 26px);
+      margin: 0 0 8px;
+      color: var(--text);
+      font-family: "lilita one";
+    }
+
+    .sub {
+      opacity: .9;
+      font-size: 14px;
+      margin: 0 0 14px;
+    }
+
+    .stage {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--bg);
+      border: 2px dashed var(--muted);
+    }
+
+    .figure-wrap {
+      position: relative;
+      display: inline-block;
+      background-color: #ffe6ea;
+      border-radius: 20px;
+      padding: 10px;
+    }
+
+    .figure-wrap img {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      object-fit: contain;
+    }
+
+    /* Zonas donde se sueltan las palabras */
+    .drop {
+      position: absolute;
+      border: 2px dashed var(--accent-2);
+      border-radius: 12px;
+      padding: 4px 6px;
+      min-width: 90px;
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--text);
+      transition: 120ms ease;
+    }
+
+    .drop[data-filled="true"] {
+      border: 2px solid var(--accent);
+      background: rgba(255, 230, 234, 0.2);
+    }
+
+    .drop.hidden-hints {
+      border-color: transparent;
+      background: transparent;
+    }
+
+    /* Zonas (coordenadas sobre tu imagen) */
+    #zona-placenta          { top: 80%; left: 10%; }
+    #zona-vena-umbilical    { top: 26%; left: 25%; }
+    #zona-arterias-umbilicales { top: 84%; left: 33%; }
+    #zona-aorta{ top: 10%; left: 80%; }
+    #zona-arteria-pulmonar   { top: 13%; left: 32%; }
+
+    /* Palabras */
+    .bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      user-select: none;
+      cursor: grab;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 2px solid var(--accent-2);
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 700;
+      transition: transform .12s ease;
+    }
+
+    .chip:active {
+      transform: scale(.95);
+    }
+
+    .chip.correct {
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
+    }
+
+    .shake {
+      animation: shake .35s ease;
+    }
+
+    @keyframes shake {
+      10% { transform: translateX(-4px) }
+      30% { transform: translateX(4px) }
+      50% { transform: translateX(-3px) }
+      70% { transform: translateX(3px) }
+      90% { transform: translateX(-2px) }
+    }
+
+    .side {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn {
+      border-radius: 12px;
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 700;
+      padding: 10px 14px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn:hover {
+      filter: brightness(1.1);
+    }
+
+    .pill {
+      font-size: 13px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, .2);
+    }
+
+    .success {
+      font-weight: 800;
+      color: var(--accent-2);
+    }
+
+  </style>
+</head>
+<body>
+  
+  <div class="app">
+    <section class="card">
+      <h1 class="title">Circulación Fetal — Arrastra las palabras</h1>
+      <p class="sub">Coloca cada palabra en su lugar correcto dentro del esquema.</p>
+
+      <div class="stage">
+        <div class="figure-wrap">
+          <img src="images/circulacion_fetal.jpeg" alt="Esquema de la circulación fetal">
+        </div>
+
+        <div class="drop" id="zona-placenta"           data-accept="Placenta"></div>
+        <div class="drop" id="zona-vena-umbilical"     data-accept="Vena umbilical"></div>
+        <div class="drop" id="zona-arteria-pulmonar"  data-accept="Arteria pulmonar"></div>
+        <div class="drop" id="zona-aorta"               data-accept="Aorta"></div>
+        <div class="drop" id="zona-arterias-umbilicales"    data-accept="Arterias umbilicales"></div>
+      </div>
+    </section>
+
+    <aside class="card side">
+      <h2 class="title">Palabras</h2>
+      <div class="bank" id="bank" aria-label="Banco de palabras">
+        <button class="chip" draggable="true" data-word="Vena umbilical">Vena umbilical</button>
+        <button class="chip" draggable="true" data-word="Arterias umbilicales">Arterias umbilicales</button>
+        <button class="chip" draggable="true" data-word="Arteria pulmonar">Arterias pulmonares</button>
+        <button class="chip" draggable="true" data-word="Placenta">Placenta</button>
+        <button class="chip" draggable="true" data-word="Aorta">Aorta</button>
+      </div>
+
+      <button class="btn" id="reset">Reiniciar</button>
+      <a href="linea_niños.html" class="btn btn-volver">Volver</a>
+      <span id="progress" class="pill">0 / 5 correctas</span>
+      <p id="feedback" class="success"></p>
+    </aside>
+  </div>
+
+  <script>
+    const bank = document.getElementById('bank');
+    const chips = Array.from(bank.querySelectorAll('.chip'));
+    const drops = Array.from(document.querySelectorAll('.drop'));
+    const progress = document.getElementById('progress');
+    const feedback = document.getElementById('feedback');
+    const resetBtn = document.getElementById('reset');
+
+    let correctCount = 0;
+
+    function updateProgress() {
+      progress.textContent = `${correctCount} / 5 correctas`;
+    }
+
+    function handleDragStart(e) {
+      e.dataTransfer.setData('text/plain', e.target.dataset.word);
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      const word = e.dataTransfer.getData('text/plain');
+      const accept = e.target.dataset.accept;
+      const drop = e.target.closest('.drop');
+
+      if (!drop) return;
+      if (drop.dataset.filled === 'true') return;
+
+      if (word === accept) {
+        const chip = chips.find(c => c.dataset.word === word);
+        drop.appendChild(chip);
+        chip.classList.add('correct');
+        chip.draggable = false;
+        drop.dataset.filled = 'true';
+        correctCount++;
+        feedback.textContent = '¡Correcto!';
+
+        // 🎉 Cuando completa las 5 correctas, lanza confeti
+        if (correctCount === 5) {
+          feedback.textContent = ' ¡Excelente! Completaste todo correctamente 🎉';
+          lanzarConfeti();
+        }
+
+      } else {
+        drop.classList.remove('shake');
+        void drop.offsetWidth;
+        drop.classList.add('shake');
+        feedback.textContent = 'Opción incorrecta';
+      }
+      updateProgress();
+    }
+
+    function handleDragOver(e) { e.preventDefault(); }
+
+    drops.forEach(d => {
+      d.addEventListener('dragover', handleDragOver);
+      d.addEventListener('drop', handleDrop);
+    });
+
+    chips.forEach(ch => ch.addEventListener('dragstart', handleDragStart));
+
+    resetBtn.addEventListener('click', () => {
+      correctCount = 0;
+      updateProgress();
+      feedback.textContent = '';
+      drops.forEach(d => d.removeAttribute('data-filled'));
+      chips.forEach(ch => {
+        bank.appendChild(ch);
+        ch.draggable = true;
+        ch.classList.remove('correct');
+      });
+    });
+
+    function lanzarConfeti() {
+      const duration = 2000;
+      const end = Date.now() + duration;
+
+      (function frame() {
+        confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+        confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      })();
+    }
+
+    updateProgress();
+  </script>
+
+  <!-- Librería de confetti 🎊 -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</body>
+</html>

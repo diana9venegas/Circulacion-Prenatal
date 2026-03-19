@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circulación Fetal – Sopa de Letras</title>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #8c3d49;
+    color: #333;
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 {
+    font-family: "Lilita One", cursive;
+    font-size: clamp(1.4em, 4vw, 2em);
+    text-align: center;
+    color: #8c3d49;
+    margin-bottom: 6px;
+  }
+  .subtitle { text-align:center; color:#a05060; font-size:0.9em; margin-bottom:18px; }
+
+  /* container wraps everything in pink */
+  .container {
+    background: #fbc6cf;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 1060px;
+  }
+
+  #startScreen {
+    max-width: 500px; margin: 0 auto;
+    background: #f9f9f9; border-radius: 15px;
+    padding: 28px 28px;
+  }
+  #startScreen h2 { font-size:1.5em; color:#8c3d49; margin-bottom:20px; text-align:center; }
+  .info-row { display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid #e8c0c8; font-size:0.95em; color:#333; }
+  .info-row:last-of-type { border-bottom:none; }
+  .info-row .icon { font-size:1.5em; flex-shrink:0; }
+  .start-btn {
+    display:block; width:100%; margin-top:24px; padding:15px;
+    background: linear-gradient(135deg, #8c3d49, #b85b6a);
+    color:white; border:none; border-radius:30px;
+    font-size:1.2em; font-weight:bold;
+    cursor:pointer; transition:transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+  .start-btn:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.4); }
+  .back-btn {
+    display:block; width:100%; margin-top:12px; padding:13px;
+    background: white;
+    color: #8c3d49; border: 2px solid #8c3d49; border-radius:30px;
+    font-size:1.1em; font-weight:bold;
+    cursor:pointer; transition:all 0.2s;
+  }
+  .back-btn:hover { background:#8c3d49; color:white; transform:translateY(-2px); }
+
+  #gameWrap { display:none; width:100%; }
+  .top-bar {
+    display:flex; align-items:center; justify-content:space-between;
+    background:#f9f9f9; border-radius:10px; padding:12px 20px;
+    margin-bottom:18px; gap:12px; flex-wrap:wrap;
+  }
+  .timer { font-family:'Courier New',monospace; font-size:1.8em; font-weight:bold; color:#8c3d49; min-width:80px; }
+  .timer.warn  { color:#ff9800; animation:pulse 1s infinite; }
+  .timer.danger { color:#f44336; animation:pulse 0.5s infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+  .score-badge { font-size:1em; color:#8c3d49; font-weight:bold; }
+  .ctrl-btn {
+    background:white; color:#8c3d49; border:2px solid #8c3d49;
+    padding:8px 20px; border-radius:20px; cursor:pointer; font-size:0.9em; transition:all 0.3s;
+  }
+  .ctrl-btn:hover { background:#8c3d49; color:white; }
+
+  .game-layout { display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap; justify-content:center; }
+
+  .grid-wrap {
+    background: white;
+    border-radius: 20px;
+    padding: 18px;
+    flex-shrink: 0;
+  }
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(20, 26px);
+    gap: 2px;
+    user-select: none;
+  }
+  .cell {
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold; font-size: 13px;
+    border-radius: 50%;
+    border: 2px solid rgba(251,182,206,0.4);
+    transition: background 0.2s, color 0.2s, transform 0.1s;
+  }
+  .cell.visible {
+    cursor: pointer;
+    background: rgba(239,197,211,0.5);
+    color: #333;
+  }
+  .cell.visible:hover { background:rgba(251,215,220,0.95); transform:scale(1.15); border-color:#b85b6a; box-shadow:0 2px 8px rgba(140,61,73,0.3); }
+  .cell.selected { background:rgba(253,147,162,0.95) !important; color:white !important; border-color:#fd93a2 !important; transform:scale(1.12); }
+  .cell.found    { background:rgba(184,91,106,0.95) !important; color:#f7cfd4 !important; border-color:#b85b6a !important; cursor:default; }
+  .cell.hidden-cell { visibility:hidden; pointer-events:none; }
+
+  .questions-panel {
+    flex:1; min-width:280px; max-width:460px;
+    background:#eea2ad; border-radius:10px; padding:20px;
+  }
+  .questions-panel h3 { color:#8c3d49; margin-bottom:15px; font-size:1.1em; }
+  .q-item {
+    background:white; border-radius:5px;
+    border-left:4px solid #8c3d49;
+    padding:10px 12px; margin-bottom:10px;
+    font-size:0.92em; line-height:1.4; transition:all 0.3s;
+  }
+  .q-item.found { background:#b85b6a; color:white; border-left-color:#b85b6a; }
+  .q-num { font-size:0.72em; font-weight:700; color:#8c3d49; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px; }
+  .q-item.found .q-num { color:#f7cfd4; }
+  .q-text { color:#444; line-height:1.5; }
+  .q-item.found .q-text { color:#f7cfd4; text-decoration:line-through; }
+  .q-answer { display:none; margin-top:6px; font-size:0.85em; font-weight:700; color:white; letter-spacing:0.04em; }
+  .q-item.found .q-answer { display:block; }
+
+  #msgBox { text-align:center; min-height:25px; font-size:1.1em; color:#b85b6a; font-weight:bold; margin:14px 0 0; transition:opacity 0.4s; }
+
+  .grid-wrap {
+    background-image: url('images/Corazon.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  .overlay {
+    display:none; max-width:440px; margin:20px auto;
+    background:#f9f9f9; border-radius:20px; padding:40px 36px;
+    text-align:center;
+    animation:fadeUp 0.4s ease;
+  }
+  .overlay.show { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .overlay-icon { font-size:4em; margin-bottom:16px; }
+  .overlay-title { font-size:1.8em; color:#8c3d49; font-weight:bold; margin-bottom:10px; }
+  .overlay-msg { color:#666; font-size:1em; margin-bottom:24px; line-height:1.6; }
+  .btn-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .btn-primary {
+    background:#8c3d49; color:white;
+    border:none; padding:12px 28px; border-radius:20px; font-size:1em;
+    cursor:pointer; transition:all 0.3s;
+  }
+  .btn-primary:hover { background:#b85b6a; transform:translateY(-2px); }
+  .btn-ghost {
+    background:white; color:#8c3d49; border:2px solid #8c3d49;
+    padding:12px 28px; border-radius:20px; font-size:1em; cursor:pointer; transition:all 0.2s;
+  }
+  .btn-ghost:hover { background:#8c3d49; color:white; }
+
+  #pauseModal {
+    position:fixed; inset:0; background:rgba(0,0,0,0.7);
+    display:none; align-items:center; justify-content:center; z-index:999;
+  }
+  #pauseModal.show { display:flex; }
+  .modal-box {
+    background:white; border-radius:20px; padding:40px 36px;
+    text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.3); animation:fadeUp 0.3s; min-width:280px;
+  }
+  .modal-box h2 { color:#8c3d49; margin-bottom:10px; font-size:1.8em; }
+  .modal-box p  { color:#666; font-size:1.1em; margin-bottom:24px; }
+
+  @media(max-width:600px){
+    #grid { grid-template-columns: repeat(20, 18px); }
+    .cell { width:18px; height:18px; font-size:9px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>CIRCULACIÓN FETAL – Sopa de Letras</h1>
+<p class="subtitle">5 preguntas aleatorias por partida</p>
+
+<div id="startScreen">
+  <h2>¿Cómo jugar?</h2>
+  <div class="info-row"><span class="icon">🎲</span><span>Cada partida sortea <strong>5 preguntas al azar</strong> de un banco de 10</span></div>
+  <div class="info-row"><span class="icon">⏱️</span><span>Tienes <strong>3 minutos</strong> para encontrar las 5 respuestas</span></div>
+  <div class="info-row"><span class="icon">🖱️</span><span>Arrastra el mouse en cualquier dirección para seleccionar</span></div>
+  <div class="info-row"><span class="icon">❤️</span><span>Las palabras están ocultas dentro del corazón</span></div>
+  <button class="start-btn" onclick="startGame()">▶ Comenzar</button>
+  <button class="back-btn" onclick="window.location.href='index.html'">← Volver</button>
+</div>
+
+<div id="gameWrap">
+  <div class="top-bar">
+    <div class="timer" id="timer">03:00</div>
+    <div class="score-badge">Encontradas: <strong><span id="scoreNum">0</span></strong>/5</div>
+    <button class="ctrl-btn" onclick="togglePause()">⏸ Pausa</button>
+  </div>
+  <div class="game-layout">
+    <div class="grid-wrap">
+      <div id="grid"></div>
+    </div>
+    <div class="questions-panel">
+      <h3>Encuentra la respuesta</h3>
+      <div id="qList"></div>
+    </div>
+  </div>
+  <div id="msgBox"></div>
+</div>
+
+<div class="overlay" id="timeoutScreen">
+  <div class="overlay-icon">⏰</div>
+  <div class="overlay-title">¡Tiempo Agotado!</div>
+  <div class="overlay-msg">Encontraste <strong id="toScore">0</strong> de 5 palabras.<br>¡Inténtalo de nuevo!</div>
+  <div class="btn-row">
+    <button class="btn-primary" onclick="startGame()">Reintentar</button>
+    <button class="btn-ghost" onclick="resetToStart()">Inicio</button>
+  </div>
+</div>
+
+<div class="overlay" id="victoryScreen">
+  <div class="overlay-icon">🏆</div>
+  <div class="overlay-title">¡Excelente!</div>
+  <div class="overlay-msg">Encontraste todas las palabras.<br>Tiempo restante: <strong id="vtTime">—</strong></div>
+  <div class="btn-row">
+    <button class="btn-primary" onclick="startGame()">Jugar de Nuevo</button>
+    <button class="btn-ghost" onclick="resetToStart()">Inicio</button>
+  </div>
+</div>
+
+<div id="pauseModal">
+  <div class="modal-box">
+    <h2>Juego Pausado</h2>
+    <p>El tiempo está detenido</p>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="togglePause()">Continuar</button>
+      <button class="btn-ghost" onclick="resetToStart()">Salir</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+const ALL_Q = [
+  { q:"Se encarga de oxigenar la sangre que llega al feto, ya que los pulmones fetales aún no pueden hacerlo.", answer:"PLACENTA", display:"PLACENTA" },
+  { q:"Permite que la sangre oxigenada de la vena umbilical pase directamente a la VCI sin atravesar el hígado.", answer:"CONDUCTOVENOSO", display:"CONDUCTO VENOSO" },
+  { q:"Estructura vascular con el mayor porcentaje de oxígeno en la circulación fetal.", answer:"VENAUMBILICAL", display:"VENA UMBILICAL" },
+  { q:"Gran vaso que recibe la sangre del ventrículo izquierdo para distribuirla a la circulación sistémica.", answer:"AORTA", display:"AORTA" },
+  { q:"Recogen la sangre desoxigenada del feto y la llevan de regreso a la placenta para oxigenarse.", answer:"ARTERIASUMBILICALES", display:"ARTERIAS UMBILICALES" },
+  { q:"Después del nacimiento se transforma en el ligamento arterioso, uniendo la arteria pulmonar izquierda con la aorta.", answer:"CONDUCTOARTERIOSO", display:"CONDUCTO ARTERIOSO" },
+  { q:"Cavidad cardiaca más fuerte durante la vida fetal por estar sometida a mayor trabajo.", answer:"VENTRICULODERECHO", display:"VENTRÍCULO DERECHO" },
+  { q:"Junto con la vena cava superior e inferior, desemboca en el atrio derecho aportando sangre desoxigenada.", answer:"SENOCORONARIO", display:"SENO CORONARIO" },
+  { q:"Estructura por la cual la mayor parte de la sangre de la VCI pasa directamente al lado izquierdo del corazón.", answer:"FOSAOVAL", display:"FOSA OVAL" },
+  { q:"Principal determinante del cierre funcional del ductus arterioso inmediatamente tras el nacimiento.", answer:"OXIGENO", display:"OXÍGENO" }
+];
+
+// 20x20 heart mask
+const HEART = [
+  [0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,1,1,0,1,1,1,1,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0],
+  [0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0],
+  [0,0,0,1,1,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0],
+  [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0],
+  [0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0], 
+  [0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0],
+  [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0],
+  [0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0],
+  [0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0],
+  [0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+  [0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+  [0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+  [0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+  [0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0],
+  [0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0],
+  [0,0,0,0,0,0,1,1,0,0,1,1,1,1,1,1,0,0,0,0],
+  [0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0] 
+];
+
+const SIZE = 20;
+const DIRS = [[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]];
+
+let grid=[], roundQ=[], foundWords=[], selectedCells=[];
+let isSelecting=false, startCell=null, currentDir=null;
+let timeLeft=180, timerInt=null, isPaused=false;
+
+function pickRound() {
+  // Keep trying until all 5 words fit together
+  for(let attempt=0; attempt<50; attempt++){
+    const idx=[...Array(ALL_Q.length).keys()];
+    for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]];}
+    const candidates=idx.slice(0,5).map(i=>ALL_Q[i]);
+    if(tryBuildGrid(candidates)){
+      roundQ=candidates;
+      return;
+    }
+  }
+  // fallback: just pick any 5
+  const idx=[...Array(ALL_Q.length).keys()];
+  for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]];}
+  roundQ=idx.slice(0,5).map(i=>ALL_Q[i]);
+}
+
+function tryBuildGrid(questions) {
+  const testGrid=Array.from({length:SIZE},()=>Array(SIZE).fill(''));
+  for(const q of questions){
+    let placed=false;
+    for(let a=0;a<1000&&!placed;a++){
+      const [dr,dc]=DIRS[Math.floor(Math.random()*DIRS.length)];
+      const r=Math.floor(Math.random()*SIZE),c=Math.floor(Math.random()*SIZE);
+      if(canPlaceOn(testGrid,q.answer,r,c,dr,dc)){
+        for(let i=0;i<q.answer.length;i++) testGrid[r+dr*i][c+dc*i]=q.answer[i];
+        placed=true;
+      }
+    }
+    if(!placed) return false;
+  }
+  // Success — copy to real grid
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) grid[r][c]=testGrid[r][c];
+  return true;
+}
+
+function canPlaceOn(g,word,r,c,dr,dc){
+  for(let i=0;i<word.length;i++){
+    const nr=r+dr*i,nc=c+dc*i;
+    if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) return false;
+    if(HEART[nr][nc]===0) return false;
+    if(g[nr][nc]!==''&&g[nr][nc]!==word[i]) return false;
+  }
+  return true;
+}
+
+function buildGrid() {
+  grid=Array.from({length:SIZE},()=>Array(SIZE).fill(''));
+  for(const q of roundQ){
+    let placed=false;
+    for(let a=0;a<1000&&!placed;a++){
+      const [dr,dc]=DIRS[Math.floor(Math.random()*DIRS.length)];
+      const r=Math.floor(Math.random()*SIZE),c=Math.floor(Math.random()*SIZE);
+      if(canPlace(q.answer,r,c,dr,dc)){placeWord(q.answer,r,c,dr,dc);placed=true;}
+    }
+  }
+}
+
+function canPlace(word,r,c,dr,dc){
+  for(let i=0;i<word.length;i++){
+    const nr=r+dr*i,nc=c+dc*i;
+    if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) return false;
+    if(HEART[nr][nc]===0) return false;
+    if(grid[nr][nc]!==''&&grid[nr][nc]!==word[i]) return false;
+  }
+  return true;
+}
+function placeWord(word,r,c,dr,dc){
+  for(let i=0;i<word.length;i++) grid[r+dr*i][c+dc*i]=word[i];
+}
+
+function renderGrid(){
+  const el=document.getElementById('grid');
+  el.innerHTML='';
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      const cell=document.createElement('div');
+      if(HEART[r][c]===0){
+        cell.className='cell hidden-cell';
+      } else {
+        cell.className='cell visible';
+        cell.textContent=grid[r][c];
+        cell.dataset.r=r; cell.dataset.c=c;
+        cell.addEventListener('mousedown',e=>{e.preventDefault();startSel(r,c);});
+        cell.addEventListener('mouseenter',()=>contSel(r,c));
+        cell.addEventListener('mouseup',endSel);
+        cell.addEventListener('touchstart',e=>{e.preventDefault();startSel(r,c);},{passive:false});
+        cell.addEventListener('touchmove',e=>{
+          e.preventDefault();
+          const t=e.touches[0],el2=document.elementFromPoint(t.clientX,t.clientY);
+          if(el2&&el2.dataset.r!==undefined) contSel(+el2.dataset.r,+el2.dataset.c);
+        },{passive:false});
+        cell.addEventListener('touchend',endSel);
+      }
+      el.appendChild(cell);
+    }
+  }
+}
+
+function renderQuestions(){
+  document.getElementById('qList').innerHTML=roundQ.map((q,i)=>{
+    const found=foundWords.includes(q.answer);
+    return `<div class="q-item${found?' found':''}">
+      <div class="q-num">Pregunta ${i+1}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-answer">✔ ${q.display}</div>
+    </div>`;
+  }).join('');
+}
+
+function startSel(r,c){
+  if(isPaused) return;
+  isSelecting=true;startCell={r,c};currentDir=null;selectedCells=[{r,c}];updateHL();
+}
+function contSel(r,c){
+  if(!isSelecting||!startCell||isPaused) return;
+  const dr=r-startCell.r,dc=c-startCell.c;
+  if(dr===0&&dc===0){selectedCells=[{r:startCell.r,c:startCell.c}];updateHL();return;}
+  if(!currentDir){
+    if(dr===0) currentDir=[0,dc>0?1:-1];
+    else if(dc===0) currentDir=[dr>0?1:-1,0];
+    else if(Math.abs(dr)===Math.abs(dc)) currentDir=[dr>0?1:-1,dc>0?1:-1];
+    else return;
+  }
+  const[ddr,ddc]=currentDir;
+  const steps=ddr===0?Math.abs(c-startCell.c):Math.abs(r-startCell.r);
+  const cells=[];
+  for(let i=0;i<=steps;i++){
+    const nr=startCell.r+ddr*i,nc=startCell.c+ddc*i;
+    if(nr>=0&&nr<SIZE&&nc>=0&&nc<SIZE&&HEART[nr][nc]===1) cells.push({r:nr,c:nc});
+  }
+  selectedCells=cells;updateHL();
+}
+function endSel(){
+  if(!isSelecting) return;
+  isSelecting=false;checkWord();startCell=null;currentDir=null;
+}
+function updateHL(){
+  document.querySelectorAll('.cell.selected').forEach(e=>e.classList.remove('selected'));
+  selectedCells.forEach(({r,c})=>{
+    const e=document.querySelector(`[data-r="${r}"][data-c="${c}"]`);
+    if(e&&!e.classList.contains('found')) e.classList.add('selected');
+  });
+}
+function checkWord(){
+  const str=selectedCells.map(({r,c})=>grid[r][c]).join('');
+  const rev=str.split('').reverse().join('');
+  const ws=roundQ.map(q=>q.answer);
+  const idx=ws.indexOf(str)!==-1?ws.indexOf(str):ws.indexOf(rev);
+  if(idx!==-1&&!foundWords.includes(ws[idx])){
+    foundWords.push(ws[idx]);
+    selectedCells.forEach(({r,c})=>{
+      const e=document.querySelector(`[data-r="${r}"][data-c="${c}"]`);
+      if(e){e.classList.remove('selected');e.classList.add('found');}
+    });
+    showMsg(`¡Correcto! ${roundQ[idx].display} 🎉`);
+    document.getElementById('scoreNum').textContent=foundWords.length;
+    renderQuestions();
+    if(foundWords.length===5) showVictory();
+  } else {
+    document.querySelectorAll('.cell.selected').forEach(e=>e.classList.remove('selected'));
+  }
+  selectedCells=[];
+}
+function showMsg(txt){
+  const e=document.getElementById('msgBox');
+  e.textContent=txt;e.style.opacity='1';
+  clearTimeout(e._t);e._t=setTimeout(()=>e.style.opacity='0',3000);
+}
+
+function startTimer(){
+  updateTimer();
+  timerInt=setInterval(()=>{timeLeft--;updateTimer();if(timeLeft<=0){clearInterval(timerInt);showTimeout();}},1000);
+}
+function updateTimer(){
+  const m=Math.floor(timeLeft/60),s=timeLeft%60;
+  const e=document.getElementById('timer');
+  e.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  e.className='timer'+(timeLeft<=30?' danger':timeLeft<=60?' warn':'');
+}
+function togglePause(){
+  isPaused=!isPaused;
+  if(isPaused){clearInterval(timerInt);document.getElementById('pauseModal').classList.add('show');}
+  else{startTimer();document.getElementById('pauseModal').classList.remove('show');}
+}
+
+function startGame(){
+  clearInterval(timerInt);
+  grid=Array.from({length:SIZE},()=>Array(SIZE).fill(''));
+  pickRound();
+  // fill remaining heart cells with random letters
+  const AL='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  for(let r=0;r<SIZE;r++)
+    for(let c=0;c<SIZE;c++)
+      if(!grid[r][c]&&HEART[r][c]===1) grid[r][c]=AL[Math.floor(Math.random()*26)];
+  foundWords=[];selectedCells=[];timeLeft=180;isPaused=false;
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('timeoutScreen').classList.remove('show');
+  document.getElementById('victoryScreen').classList.remove('show');
+  document.getElementById('pauseModal').classList.remove('show');
+  document.getElementById('gameWrap').style.display='block';
+  document.getElementById('scoreNum').textContent='0';
+  document.getElementById('msgBox').textContent='';
+  renderGrid(); renderQuestions(); startTimer();
+}
+function showTimeout(){
+  document.getElementById('gameWrap').style.display='none';
+  document.getElementById('toScore').textContent=foundWords.length;
+  document.getElementById('timeoutScreen').classList.add('show');
+}
+function showVictory(){
+  clearInterval(timerInt);
+  document.getElementById('gameWrap').style.display='none';
+  const m=Math.floor(timeLeft/60),s=timeLeft%60;
+  document.getElementById('vtTime').textContent=`${m}:${String(s).padStart(2,'0')}`;
+  document.getElementById('victoryScreen').classList.add('show');
+}
+function resetToStart(){
+  clearInterval(timerInt);
+  document.getElementById('pauseModal').classList.remove('show');
+  document.getElementById('timeoutScreen').classList.remove('show');
+  document.getElementById('victoryScreen').classList.remove('show');
+  document.getElementById('gameWrap').style.display='none';
+  document.getElementById('startScreen').style.display='block';
+}
+document.addEventListener('mouseup',endSel);
+</script>
+</body>
+</html>

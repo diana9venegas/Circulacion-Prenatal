@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Minijuego – Circulación fetal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #ffe6e9;
+      --card: #b85b6a;
+      --muted: #fd93a2;
+      --text: #ffc8d2;
+      --accent: #b45663;
+      --accent-2: #ffe6ea;
+      --danger: #da7d8c;
+      --back-btn: #fff5f5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1100px;
+      padding: 1.5rem;
+    }
+
+    .card {
+      position: relative;
+      background: var(--card);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+    }
+
+    @media (min-width: 768px) {
+      .card {
+        padding: 2.2rem 2.6rem;
+      }
+    }
+
+    h1,
+    h2 {
+      color: #ffeef2;
+      font-family: "lilita one";
+    }
+
+    p {
+      margin-top: 0.4rem;
+      line-height: 1.5;
+    }
+
+    .subtitle {
+      opacity: 0.95;
+      margin-bottom: 0.6rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .timer {
+      background: var(--accent-2);
+      color: var(--card);
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .chip {
+      background: rgba(0, 0, 0, 0.18);
+      border-radius: 999px;
+      padding: 0.25rem 0.8rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 0.7rem 1.4rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 0.09s ease, box-shadow 0.09s ease, background 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      text-decoration: none;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 6px 15px rgba(253, 147, 162, 0.45);
+    }
+
+    .btn-primary:hover {
+      background: #b85b6a;
+    }
+
+    .btn-outline {
+  background: #ffffff;
+  color: #555;                /* texto gris suave */
+  border: 1px solid #e5e5e5; /* borde gris claro */
+  border-radius: 999px;
+  padding: 0.7rem 1.4rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12); /* sombra suave */
+  transition: background 0.15s, box-shadow 0.15s, transform 0.08s;
+}
+
+.btn-outline:hover {
+  background: #f7f7f7;        /* hover gris clarito */
+}
+
+.btn-outline:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+      box-shadow: 0 6px 15px rgba(255, 92, 119, 0.4);
+    }
+
+    .btn-danger:hover {
+      background: #ffc8d2;
+    }
+
+    .btn-back {
+      background: var(--back-btn);
+      color: #b85b6a;
+      border-radius: 999px;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.85rem;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s;
+    }
+
+    .btn-back span.icon {
+      font-size: 0.9rem;
+    }
+
+    .btn-back:hover {
+      background: #fff0f0;
+    }
+
+    .btn-back:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    /* Layout juego */
+    .game-layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 1rem;
+      gap: 1rem;
+    }
+
+    .game-row {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    @media (max-width: 768px) {
+      .game-row {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    .puzzle-container {
+      width: min(360px, 80vw);
+      height: min(360px, 80vw);
+      max-width: 420px;
+      max-height: 420px;
+      background: var(--muted);
+      border-radius: 1rem;
+      padding: 0.5rem;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    
+    }
+
+    .puzzle-grid {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 2px;
+      border-radius: 0.8rem;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .tile {
+      cursor: pointer;
+      position: relative;
+      background-image: url("images/rompecabezas_circ.jpeg");
+      background-size: 300% 300%; /* 3x3 */
+      background-repeat: no-repeat;
+      transition: transform 0.08s ease, box-shadow 0.08s ease,
+        outline 0.08s ease;
+    }
+
+    .tile:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 0 2px rgba(255, 230, 234, 0.7);
+    }
+
+    .tile.selected {
+      outline: 3px solid #fffbd9;
+      z-index: 2;
+      box-shadow: 0 0 0 3px rgba(255, 251, 217, 0.8);
+      transform: scale(1.03);
+    }
+
+    .tile:active {
+      transform: scale(1);
+      box-shadow: none;
+    }
+
+    .game-instructions {
+      font-size: 0.9rem;
+      text-align: center;
+      opacity: 0.95;
+    }
+
+    .game-instructions strong {
+      color: #fff7fb;
+    }
+
+    .reference-image {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .reference-image img {
+      width: min(200px, 60vw);
+      border-radius: 0.8rem;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      border: 3px solid var(--accent-2);
+    }
+
+    .reference-label {
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+      opacity: 0.9;
+      font-weight: 600;
+      color: #ffeef2;
+    }
+
+    .actions-row {
+      margin-top: 1.2rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    /* Overlay / modales */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(4px);
+      z-index: 10;
+    }
+
+    .modal {
+      max-width: 520px;
+      width: 90%;
+      background: var(--muted);
+      color: #fff7fb;
+      border-radius: 1.4rem;
+      padding: 2rem 2.2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+      text-align: center;
+      animation: popIn 0.25s ease-out;
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.97);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal h2 {
+      margin-bottom: 0.3rem;
+    }
+
+    .modal p {
+      font-size: 0.95rem;
+    }
+
+    .modal-actions {
+      margin-top: 1.6rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.9rem;
+    }
+
+    .big-emoji {
+      font-size: 2.3rem;
+      margin-bottom: 0.4rem;
+    }
+
+    /* Imagen de vista previa en pantalla de victoria */
+    .win-preview {
+      margin-top: 1.2rem;
+      margin-inline: auto;
+      width: min(260px, 80vw);
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+      background: #000;
+    }
+
+    .win-preview img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="card">
+      <!-- Barra superior fija -->
+      <div class="top-bar">
+        <button class="btn-back" id="btn-back-main">
+          <span class="icon">←</span>
+          <span>Volver</span>
+        </button>
+        <div class="timer">
+          ⏱ Tiempo restante:
+          <span id="time-remaining">03:00</span>
+        </div>
+      </div>
+
+      <h2>Rompecabezas de la circulación fetal</h2>
+      <p class="subtitle">
+        Completa este rompecabezas de la circulación fetal.
+      </p>
+
+      <!-- Área del juego -->
+      <div class="game-layout">
+        <div class="game-row">
+          <div class="puzzle-container">
+            <div id="puzzle-grid" class="puzzle-grid"></div>
+          </div>
+          
+          <div class="reference-image">
+            <img src="images/rompecabezas_circ.jpeg" alt="Referencia de la circulación fetal">
+          </div>
+        </div>
+        <p class="game-instructions">
+          Haz clic en una pieza para seleccionarla y luego en otra para
+          <strong>intercambiar sus posiciones</strong>.
+        </p>
+      </div>
+
+      <div class="actions-row">
+        <button class="btn btn-outline" id="btn-reset">
+          ↻ Reiniciar
+        </button>
+      </div>
+
+      <!-- OVERLAY MODALES (encima del juego) -->
+      <div id="overlay" class="overlay">
+        <!-- Modal de inicio -->
+        <div id="start-modal" class="modal">
+          <h2>Minijuego:</h2>
+          <h2>Rompecabezas de la circulación fetal</h2>
+          <p style="margin-top: 0.9rem;">
+            Tendrás <strong>3 minutos</strong> para completar este rompecabezas del sistema
+            circulatorio fetal.
+          </p>
+          <div class="modal-actions">
+            <button class="btn btn-primary" id="btn-start">
+              Iniciar juego
+            </button>
+            <button class="btn btn-outline" id="btn-start-back">
+              ← Volver
+            </button>
+          </div>
+        </div>
+
+        <!-- Modal de tiempo agotado -->
+        <div id="timeup-modal" class="modal hidden">
+          <h2>¡Se acabó el tiempo!</h2>
+          <p>
+            Tus 3 minutos han terminado. 
+          </p>
+          <div class="modal-actions">
+            <button class="btn btn-danger" id="btn-timeup-restart">
+              ↻ Reintentar
+            </button>
+            <button class="btn btn-outline" id="btn-timeup-back">
+              ← Volver
+            </button>
+          </div>
+        </div>
+
+        <!-- Modal de victoria -->
+        <div id="win-modal" class="modal hidden">
+          <h2>¡Felicidades!</h2>
+          <p>
+            ¡Completaste el rompecabezas de la circulación fetal!
+          </p>
+
+         
+          <div class="win-preview">
+            <img
+              src="images/rompecabezas_circ.jpeg"
+              alt="Esquema completo de la circulación fetal"
+            />
+          </div>
+
+          <div class="modal-actions">
+            <button class="btn btn-primary" id="btn-win-back">
+              ← Volver
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- fin overlay -->
+    </div>
+  </div>
+
+  <script>
+    const GRID_SIZE = 3; // 3x3
+    const TILE_COUNT = GRID_SIZE * GRID_SIZE;
+
+    let timerId = null;
+    let timeLeft = 180; 
+    let gameFinished = false;
+    let selectedTile = null;
+
+    const overlay = document.getElementById("overlay");
+    const startModal = document.getElementById("start-modal");
+    const timeupModal = document.getElementById("timeup-modal");
+    const winModal = document.getElementById("win-modal");
+
+    function showOverlay(modalId) {
+      overlay.classList.remove("hidden");
+      startModal.classList.add("hidden");
+      timeupModal.classList.add("hidden");
+      winModal.classList.add("hidden");
+
+      if (modalId === "start") startModal.classList.remove("hidden");
+      if (modalId === "timeup") timeupModal.classList.remove("hidden");
+      if (modalId === "win") winModal.classList.remove("hidden");
+    }
+
+    function hideOverlay() {
+      overlay.classList.add("hidden");
+    }
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      const mm = m < 10 ? "0" + m : "" + m;
+      const ss = s < 10 ? "0" + s : "" + s;
+      return mm + ":" + ss;
+    }
+
+    function updateTimerDisplay() {
+      const el = document.getElementById("time-remaining");
+      if (el) el.textContent = formatTime(timeLeft);
+    }
+
+    function clearTimer() {
+      if (timerId !== null) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
+    function startTimer() {
+      clearTimer();
+      timeLeft = 180;
+      updateTimerDisplay();
+
+      timerId = setInterval(() => {
+        if (gameFinished) {
+          clearTimer();
+          return;
+        }
+        timeLeft--;
+        updateTimerDisplay();
+        if (timeLeft <= 0) {
+          timeLeft = 0;
+          updateTimerDisplay();
+          timeUp();
+        }
+      }, 1000);
+    }
+
+    function timeUp() {
+      if (gameFinished) return;
+      gameFinished = true;
+      clearTimer();
+      showOverlay("timeup");
+    }
+
+    function gameWon() {
+      if (gameFinished) return;
+      gameFinished = true;
+      clearTimer();
+      showOverlay("win");
+    }
+
+    function goBackBrowser() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        showOverlay("start");
+      }
+    }
+
+    function shuffle(array) {
+      const arr = array.slice();
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function setTileBackground(tile, index) {
+      const row = Math.floor(index / GRID_SIZE);
+      const col = index % GRID_SIZE;
+      const xPos = (col / (GRID_SIZE - 1)) * 100;
+      const yPos = (row / (GRID_SIZE - 1)) * 100;
+      tile.style.backgroundPosition = xPos + "% " + yPos + "%";
+      tile.dataset.index = index.toString();
+    }
+
+    function buildPuzzle() {
+      const grid = document.getElementById("puzzle-grid");
+      grid.innerHTML = "";
+      selectedTile = null;
+
+      const indices = [...Array(TILE_COUNT).keys()];
+      let shuffled = shuffle(indices);
+
+      // Evitar empezar ya resuelto
+      const alreadySolved = shuffled.every((v, i) => v === i);
+      if (alreadySolved) {
+        shuffled = shuffle(indices);
+      }
+
+      shuffled.forEach((index) => {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        setTileBackground(tile, index);
+
+        tile.addEventListener("click", () => {
+          if (gameFinished) return;
+
+          if (!selectedTile) {
+            selectedTile = tile;
+            tile.classList.add("selected");
+          } else if (selectedTile === tile) {
+            tile.classList.remove("selected");
+            selectedTile = null;
+          } else {
+            const idx1 = parseInt(selectedTile.dataset.index, 10);
+            const idx2 = parseInt(tile.dataset.index, 10);
+
+            setTileBackground(selectedTile, idx2);
+            setTileBackground(tile, idx1);
+
+            selectedTile.classList.remove("selected");
+            selectedTile = null;
+
+            checkWinCondition();
+          }
+        });
+
+        grid.appendChild(tile);
+      });
+    }
+
+    function checkWinCondition() {
+      const tiles = Array.from(
+        document.querySelectorAll("#puzzle-grid .tile")
+      );
+      let solved = true;
+
+      tiles.forEach((tile, pos) => {
+        const idx = parseInt(tile.dataset.index, 10);
+        if (idx !== pos) solved = false;
+      });
+
+      if (solved) gameWon();
+    }
+
+    function startGame() {
+      gameFinished = false;
+      buildPuzzle();
+      startTimer();
+      hideOverlay();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Botones del modal de inicio
+      document.getElementById("btn-start").addEventListener("click", startGame);
+      document
+        .getElementById("btn-start-back")
+        .addEventListener("click", goBackBrowser);
+
+      // Botón reiniciar rompecabezas
+      document.getElementById("btn-reset").addEventListener("click", () => {
+        clearTimer();
+        startGame();
+      });
+
+      // Barra superior volver
+      document
+        .getElementById("btn-back-main")
+        .addEventListener("click", goBackBrowser);
+
+      // Modal tiempo agotado
+      document
+        .getElementById("btn-timeup-back")
+        .addEventListener("click", goBackBrowser);
+      document
+        .getElementById("btn-timeup-restart")
+        .addEventListener("click", () => {
+          startGame();
+        });
+
+      // Modal victoria
+      document
+        .getElementById("btn-win-back")
+        .addEventListener("click", goBackBrowser);
+
+      // Mostrar modal de inicio al cargar
+      showOverlay("start");
+      updateTimerDisplay();
+      buildPuzzle();
+    });
+  </script>
+</body>
+</html>

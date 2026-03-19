@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circulación prenatal</title>
+    <link rel="stylesheet" href="Estilo_linea.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    
+    <div class="menu-icon hamburger" onclick="toggleMenu()">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
+
+    <nav class="mobile-nav" id="mobileNav">
+    <span class="close-menu-btn" onclick="toggleMenu()">&times;</span>
+    <div class="menu-content">
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+            
+            <li>
+                <a href="#" onclick="toggleSubmenu(event, 'submenu-prenatal')">
+                    Circulación Prenatal ▼
+                </a>
+                
+                <ul id="submenu-prenatal" class="submenu">
+                    <li><a href="linea_niños.html">Publico en general</a></li>
+                    <li><a href="linea_tiempo.html">Para estudiantes</a></li>
+                </ul>
+            </li>
+
+            <li><a href="referencias.html">Museao de Embriología (UaCh)</a></li>
+        </ul>
+    </div>
+    </nav>
+
+    <header class="hero-timeline">
+        <div class="hero-content">
+            <p class="site-name">Museo de embriologia</p>
+            <h1 class="main-title">Circulación prenatal</h1>
+            <p class="subtitle">¡Explora la circulación prenatal!</p>
+        </div>
+    </header>
+    
+
+    <div class="intro-container">
+        <p>
+            Explore a profundidad la arquitectura del sistema cardiovascular prenatal a través de este recorrido interactivo. 
+            Examinaremos exhaustivamente la disposición de sus estructuras vasculares especializadas y cómo estas gestionan el flujo sanguíneo en paralelo. 
+            Este recorrido visual le permitirá consolidar su conocimiento sobre la anatomía funcional fetal, clave para entender la irrigación preferencial de los tejidos antes del nacimiento.
+        </p>
+    </div>
+
+
+    <div class="timeline-wrapper"> 
+        <button class="nav-arrow left-arrow" onclick="scrollTimeline('left')">‹</button>
+
+        <div class="timeline" id="progressTimeline">
+            
+            <div class="container step-1">
+                <div class="step-circle">
+                    <img src="./imagenes_linea/Placenta.png" alt="Placenta" class="sticker-imagen">
+                </div>
+                <div class="text-box">
+                    <h2>1. Placenta.</h2> 
+                    <p>Entrada de sangre oxigenada desde la placenta.</p>
+                </div>
+            </div>
+            
+            <div class="container step-2">
+                <div class="step-circle">
+                    <img src="./imagenes_linea/Riñon.png" alt="Higado" class="sticker-imagen">
+                </div>
+                <div class="text-box">
+                    <h2>2. Hígado.</h2> 
+                    <p>Paso parcial por el hígado.</p>
+                </div>
+            </div>
+            
+            <div class="container step-3">
+                <div class="step-circle">
+                    <img src="./imagenes_linea/Cavainf.png" alt="Vena cava inferior" class="sticker-imagen">
+     
+                </div>
+                <div class="text-box">
+                    <h2>3. Vena cava inferior.</h2> 
+                    <p>Mezcla de sangre en la vena cava inferior</p>
+                </div>
+            </div>
+            
+            <div class="container step-4">
+                <div class="step-circle">
+                    <img src="./imagenes_linea/AuriculaD.png" alt="Auricula derrecha" class="sticker-imagen">
+                </div>
+                <div class="text-box">
+                    <h2>4. Aurícula derecha. </h2> 
+                    <p>Llegada a la aurícula derecha</p>
+                </div>
+            </div>
+
+            <div class="container step-5">
+                <div class="step-circle">
+                    <img src="./imagenes_linea/AuriculaIzq.png" alt="Auricula Izquierda" class="sticker-imagen">
+                </div>
+                <div class="text-box">
+                    <h2>5. Aurícula izquierda.</h2> 
+                    <p>Primer camino saliendo de la aurícula derecha.</p>
+                </div>
+            </div>
+
+            <div class="container step-6">
+                <div class="step-circle">
+                    <img src="./imagenes_linea/VentriculoD.png" alt="Ventriculo Derecho" class="sticker-imagen">
+                </div>
+                <div class="text-box">
+                    <h2>6. Ventrículo derecho.</h2> 
+                    <p>Segundo camino saliendo de la aurícula derecha.</p>
+                </div>
+            </div>
+
+            <div class="container step-7">
+                <div class="step-circle">
+                    <img src="./imagenes_linea/ArteriaPulmonar.png" alt="Arteria pulmonar" class="sticker-imagen">
+                </div>
+                <div class="text-box">
+                    <h2>7. Arteria pulmonar.</h2> 
+                    <p>La sangre pasa del ventrículo derecho a la arteria pulmonar.</p>
+                </div>
+            </div>
+
+            <div class="container step-8">
+                <div class="step-circle">
+                    <img src="./imagenes_linea/ConductoArterioso.png" alt="Conducto Arterioso" class="sticker-imagen">
+
+                </div>
+                <div class="text-box">
+                    <h2>8. Conducto arterioso.</h2> 
+                    <p>La sangre se desvía hacia la aorta descendente.</p>
+                </div>
+            </div>
+
+            <div class="container step-9">
+                <div class="step-circle">
+                    <img src="./imagenes_linea/VentriculoIzq.png" alt="Ventriculo izquierdo" class="sticker-imagen">
+                </div>
+                <div class="text-box">
+                    <h2>9. Ventrículo izquierdo.</h2> 
+                    <p>Llega sangre proveniente de la auricula izquierda y los pulmones.</p>
+                </div>
+            </div>
+
+            <div class="container step-10">
+                <div class="step-circle">
+                    <img src="./imagenes_linea/AortaAsc.png" alt="Aorta ascendente." class="sticker-imagen">
+                </div>
+                <div class="text-box">
+                    <h2>10. Aorta ascendente.</h2> 
+                    <p>La sangre sale por la aorta ascendente.</p>
+                </div>
+            </div>
+
+            <div class="container step-11">
+                <div class="step-circle">
+                    <img src="./imagenes_linea/AortaDes.png" alt="Aorta ascendente." class="sticker-imagen">
+                </div>
+                <div class="text-box">
+                    <h2>11. Aorta descendente.</h2> 
+                    <p>Transporta sangre hacia las arterias umbilicales.</p>
+                </div>
+            </div>
+
+            <div class="container step-12">
+                <div class="step-circle">
+                    <img src="./imagenes_linea/Feto.png" alt="Feto" class="sticker-imagen">
+                </div>
+                <div class="text-box">
+                    <h2>12. Retorno a la placenta.</h2> 
+                    <p>La sangre llega a la placenta por las arterias umbilicales.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <button class="nav-arrow right-arrow" onclick="scrollTimeline('right')">›</button>
+
+    </div>
+
+
+
+    <div id="step-details" class="step-details">
+        <h3 id="detail-title">Información del Paso</h3>
+        <div id="detail-text">Haz clic en un círculo para ver los detalles.</div>
+    </div>
+    
+    <section class="conclusion-section">
+        <div class="white-card">
+            <h3>¿Qué pasa al nacer?</h3>
+            <p>
+            El nacimiento marca el final de esta etapa. Con la primera respiración, los pulmones asumen el intercambio gaseoso, haciendo innecesarios los caminos alternativos que estudiamos. Esta adaptación fisiológica convierte instantáneamente la circulación fetal en la circulación posnatal, permitiendo la vida independiente fuera del útero.
+            </p>
+        </div>
+    </section>
+    
+    <footer class="site-footer">
+        <div class="footer-container">
+            
+            <div class="footer-section">
+                <h3>Museo de Embriología</h3>
+                <p>Explorando el milagro de la vida antes de nacer.</p>
+            </div>
+
+            <div class="footer-section">
+                <h3>Bibliografía</h3>
+                <ul class="footer-links">
+                    <ol>
+                        <li>C. Arteaga Martínez, 
+                        <i>Embriología Humana y Biología del Desarrollo</i>. 
+                        Ciudad de México: Médica Panamericana, 2017.
+                        </li>
+                        <li>T. W. Sadler, 
+                        <i>Langman, Embriología Médica con Orientación Clínica</i>. 
+                        14ª ed. Philadelphia: Wolters Kluwer, 2020.
+                        </li>
+                    </ol>
+
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Contacto & Créditos</h3>
+                <p>Desarrollado por: <strong>Dylan Rodallegas, Diana Venegas, Nahomi Molina, Citlaly Martines y Fernando Miramontes.</strong></p>
+                <p>📧 a379982@uach.mx</p>
+                <p>🏫 Universidad Autonoma de chihuahua.</p>
+            </div>
+
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 Proyecto de Embriología. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script_linea.js"></script>
+
+</body>
+</html>
